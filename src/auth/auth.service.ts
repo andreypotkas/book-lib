@@ -1,26 +1,65 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/register-user.dto';
-import { UpdateAuthDto } from './dto/login-user.dto';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { TokenPayload } from './interfaces/tokens';
+import { AuthTokens } from './interfaces/tokens';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(private readonly jwtService: JwtService) {}
+
+  async validatePassword(
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<boolean> {
+    const passwordEquals = await bcrypt.compare(oldPassword, newPassword);
+
+    return !!passwordEquals;
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  verifyAccessToken(accessToken: string) {
+    try {
+      const payload = this.jwtService.verify(accessToken, {
+        secret: process.env.JWT_ACCESS_SECRET,
+      });
+
+      return payload;
+    } catch (err) {
+      return null;
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  verifyRefreshToken(refreshToken: string) {
+    const payload = this.jwtService.verify(refreshToken, {
+      secret: process.env.JWT_REFRESH_SECRET,
+    });
+
+    return payload;
   }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
+  async updateAccessToken(refreshToken: string) {
+    try {
+      const userId = this.verifyRefreshToken(refreshToken);
+
+      const tokens = await this.generateTokens(userId);
+
+      return tokens.accessToken;
+    } catch (e) {
+      return null;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  public generateTokens(payload: TokenPayload): AuthTokens {
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: process.env.JWT_ACCESS_EXPIRE,
+    });
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: process.env.JWT_REFRESH_EXPIRE,
+    });
+    const tokens = { accessToken, refreshToken };
+
+    return tokens;
   }
 }
