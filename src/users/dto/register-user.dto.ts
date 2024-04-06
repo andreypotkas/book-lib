@@ -12,6 +12,5 @@ export class RegisterUserDto {
 
   @IsNotEmpty()
   @IsString()
-  @MaxLength(60)
   password: string;
 }
