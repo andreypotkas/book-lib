@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { TokenPayload } from './interfaces/tokens';
-import { AuthTokens } from './interfaces/tokens';
-import { ConfigService } from '@nestjs/config';
+import { AuthTokens, TokenPayload } from './interfaces/tokens';
 
 @Injectable()
 export class AuthService {
@@ -21,21 +20,9 @@ export class AuthService {
     return !!passwordEquals;
   }
 
-  verifyAccessToken(accessToken: string) {
-    try {
-      const payload = this.jwtService.verify(accessToken, {
-        secret: process.env.JWT_ACCESS_SECRET,
-      });
-
-      return payload;
-    } catch (err) {
-      return null;
-    }
-  }
-
   verifyRefreshToken(refreshToken: string) {
     const payload = this.jwtService.verify(refreshToken, {
-      secret: process.env.JWT_REFRESH_SECRET,
+      secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
     });
 
     return payload;
@@ -45,7 +32,7 @@ export class AuthService {
     try {
       const userId = this.verifyRefreshToken(refreshToken);
 
-      const tokens = await this.generateTokens(userId);
+      const tokens = this.generateTokens(userId);
 
       return tokens.accessToken;
     } catch (e) {

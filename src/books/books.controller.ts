@@ -1,17 +1,19 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Param,
-  Put,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('books')
 export class BooksController {
@@ -29,8 +31,12 @@ export class BooksController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() createBookDto: CreateBookDto) {
-    return this.bookService.create(createBookDto);
+  async create(
+    @Body() createBookBody: Omit<CreateBookDto, 'userId'>,
+    @Req() req: Request,
+  ) {
+    const { id } = req['user'];
+    return this.bookService.create({ ...createBookBody, userId: id });
   }
 
   @UseGuards(JwtAuthGuard)

@@ -4,14 +4,14 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
+import { AuthService } from 'src/auth/auth.service';
+import { AuthResponse } from 'src/auth/interfaces/auth-response';
+import { Repository } from 'typeorm';
+import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { User } from './entities/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { AuthService } from 'src/auth/auth.service';
-import * as bcrypt from 'bcrypt';
-import { AuthResponse } from 'src/auth/interfaces/auth-response';
-import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -32,13 +32,15 @@ export class UsersService {
     }
 
     const newUser = await this.create(registerUserDto);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = newUser;
 
     const tokens = this.authService.generateTokens({
       email,
       id: newUser.id,
     });
 
-    return { ...newUser, ...tokens };
+    return { ...userWithoutPassword, ...tokens };
   }
 
   public async login(loginUserDto: LoginUserDto): Promise<AuthResponse> {

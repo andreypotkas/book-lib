@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateBookDto {
   @IsString()
@@ -16,8 +16,4 @@ export class CreateBookDto {
   @IsNumber()
   @IsNotEmpty()
   readonly yearOfPublication: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  readonly userId: number;
 }

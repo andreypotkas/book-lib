@@ -34,16 +34,6 @@ paths:
           description: Успешный вход пользователя и возврат JWT токена
         '401':
           description: Неправильные учетные данные
-  /users/me:
-    get:
-      summary: Получить информацию о текущем пользователе
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Успешный запрос, возвращает информацию о пользователе
-        '401':
-          description: Пользователь не аутентифицирован
   /books:
     get:
       summary: Получить список всех книг
@@ -147,18 +137,20 @@ components:
     BookDto:
       type: object
       properties:
-        title:
+        name:
           type: string
         author:
           type: string
-        year:
+        yearOfPublication:
           type: integer
         description:
           type: string
       required:
-        - title
+        - name
         - author
         - year
+        - yearOfPublication
+        - description
   securitySchemes:
     bearerAuth:
       type: http
