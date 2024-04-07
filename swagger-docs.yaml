@@ -37,7 +37,7 @@ paths:
 
   /auth/refresh-token:
     post:
-      summary: Refresh access token
+      summary: Обновить токен доступа
       requestBody:
         required: true
         content:
@@ -50,7 +50,7 @@ paths:
 
       responses:
         '200':
-          description: Successful token refresh, returns new access token
+          description: Успешное обновление токена, возвращает новый токен доступа.
           content:
             application/json:
               schema:
@@ -62,9 +62,37 @@ paths:
   /books:
     get:
       summary: Получить список всех книг
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Количество элементов на странице
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: author
+          in: query
+          description: Фильтр по автору
+          required: false
+          schema:
+            type: string
+        - name: yearOfPublication
+          in: query
+          description: Фильтр по году издания
+          required: false
+          schema:
+            type: integer
       responses:
         '200':
           description: Успешный запрос, возвращает список книг
+
     post:
       summary: Добавить новую книгу
       security:
@@ -173,7 +201,6 @@ components:
       required:
         - name
         - author
-        - year
         - yearOfPublication
         - description
   securitySchemes:

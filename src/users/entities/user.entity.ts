@@ -15,7 +15,7 @@ export class User {
   })
   email: string;
 
-  @Column({ select: false })
+  @Column({ length: 60 })
   @Exclude()
   password: string;
 

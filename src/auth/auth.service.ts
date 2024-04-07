@@ -15,7 +15,7 @@ export class AuthService {
     oldPassword: string,
     newPassword: string,
   ): Promise<boolean> {
-    const passwordEquals = await bcrypt.compare(oldPassword, newPassword);
+    const passwordEquals = await bcrypt.compare(newPassword, oldPassword);
 
     return !!passwordEquals;
   }
@@ -24,7 +24,6 @@ export class AuthService {
     const payload = this.jwtService.verify(refreshToken, {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
     });
-    console.log(payload);
 
     return payload;
   }

@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -20,8 +21,23 @@ export class BooksController {
   constructor(private readonly bookService: BooksService) {}
 
   @Get()
-  async findAll() {
-    return this.bookService.findAll();
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('author') author?: string,
+    @Query('year') yearOfPublication?: number,
+  ) {
+    const paginationOptions = { page, limit };
+
+    const filterOptions = {};
+    if (author) {
+      filterOptions['author'] = author;
+    }
+    if (yearOfPublication) {
+      filterOptions['yearOfPublication'] = yearOfPublication;
+    }
+
+    return this.bookService.findAll(paginationOptions, filterOptions);
   }
 
   @Get(':id')

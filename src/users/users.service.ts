@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { instanceToPlain } from 'class-transformer';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthResponse } from 'src/auth/interfaces/auth-response';
 import { Repository } from 'typeorm';
@@ -33,14 +34,14 @@ export class UsersService {
 
     const newUser = await this.create(registerUserDto);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userWithoutPassword } = newUser;
+    const { password, ...rest } = newUser;
 
     const tokens = this.authService.generateTokens({
       email,
       id: newUser.id,
     });
 
-    return { ...userWithoutPassword, ...tokens };
+    return { ...rest, ...tokens };
   }
 
   public async login(loginUserDto: LoginUserDto): Promise<AuthResponse> {
@@ -52,7 +53,7 @@ export class UsersService {
       throw new NotFoundException("User with this email doesn't exist");
     }
 
-    const isPasswordCorrect = this.authService.validatePassword(
+    const isPasswordCorrect = await this.authService.validatePassword(
       user.password,
       password,
     );
@@ -66,16 +67,18 @@ export class UsersService {
       id: user.id,
     });
 
-    return { ...user, ...tokens };
+    const userPlainObject = instanceToPlain(user) as Omit<User, 'password'>;
+
+    return { ...userPlainObject, ...tokens };
   }
 
-  private findOneByEmail(email: string) {
-    return this.userRepository.findOne({ where: { email } });
+  private async findOneByEmail(email: string) {
+    const user = await this.userRepository.findOne({ where: { email } });
+    return user;
   }
 
   private async create(registerUserDto: RegisterUserDto): Promise<User> {
     const { password } = registerUserDto;
-
     const hashedPassword = await bcrypt.hash(password, 7);
 
     const newUser = this.userRepository.save({
