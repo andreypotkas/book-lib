@@ -22,20 +22,22 @@ export class AuthService {
 
   verifyRefreshToken(refreshToken: string) {
     const payload = this.jwtService.verify(refreshToken, {
-      secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
     });
+    console.log(payload);
 
     return payload;
   }
 
   async updateAccessToken(refreshToken: string) {
     try {
-      const userId = this.verifyRefreshToken(refreshToken);
+      const { email, id } = this.verifyRefreshToken(refreshToken);
 
-      const tokens = this.generateTokens(userId);
+      const tokens = this.generateTokens({ id, email });
 
-      return tokens.accessToken;
+      return tokens;
     } catch (e) {
+      console.log(e);
       return null;
     }
   }

@@ -34,6 +34,31 @@ paths:
           description: Успешный вход пользователя и возврат JWT токена
         '401':
           description: Неправильные учетные данные
+
+  /auth/refresh-token:
+    post:
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+
+      responses:
+        '200':
+          description: Successful token refresh, returns new access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+
   /books:
     get:
       summary: Получить список всех книг
