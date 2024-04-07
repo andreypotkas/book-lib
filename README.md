@@ -1,3 +1,13 @@
+# RESTful API для управления книгами с аутентификацией
+
+- [x] 1. Модель данных
+- [x] 2. CRUD операции
+- [x] 3. Валидация
+- [x] 4. Обработка ошибок
+- [x] 5. Хранение данных
+- [x] 6. Аутентификация и авторизация
+- [x] 7. Пагинация и фильтрация для книг
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
